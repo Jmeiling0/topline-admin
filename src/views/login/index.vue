@@ -70,8 +70,23 @@ export default {
           captchaObj.onReady(function () {
             // 只有ready才能显示验证码
             captchaObj.verify() // 显示验证码
-          }).onSubmit(function () {
-            console.log('验证成功了')
+          }).onSuccess(function () {
+            const {
+              geetest_challenge: challenge,
+              geetest_seccode: seccode,
+              geetest_validate: validate } =
+            captchaObj.getValidate()
+            axios({
+              method: 'GET',
+              url: `http://ttapi.research.itcast.cn/mp/v1_0/sms/codes/${mobile}`,
+              params: { // 专门用来查询query查询字符串参数
+                challenge,
+                seccode,
+                validate
+              }
+            }).then(res => {
+              console.log(res.data)
+            })
           })
         })
       })
