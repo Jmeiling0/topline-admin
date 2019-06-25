@@ -27,6 +27,10 @@
     <el-form-item>
       <el-button class="btn-login" type="primary" @click="handleLogin" :loading="loginLoading">登录</el-button>
     </el-form-item>
+    <el-form-item prop="agree">
+       <el-checkbox v-model="form.agree" ></el-checkbox>
+       <span>我已阅读并同意<a href="#">用户协议</a>和<a href="#">隐私条款</a></span>
+    </el-form-item>
   </el-form>
     </div>
   </div>
@@ -42,18 +46,23 @@ export default {
     return {
       form: { // 表单数据
         mobile: '15106849157',
-        code: ''
+        code: '',
+        agree: '' // 是否同意用户协议
       },
       loginLoading: false, // 登录按钮 loading 状态
 
       rules: {// 表单验证规则
         mobile: [
           { required: true, message: '请输入手机号', trigger: 'blur' },
-          { len: 11, max: 11, message: '长度在11个字符', trigger: 'blur' }
+          { len: 11, message: '长度必须为11个字符', trigger: 'blur' }
         ],
         code: [
           { required: true, message: '请输入验证码', trigger: 'blur' },
-          { len: 6, max: 6, message: '长度在6个字符', trigger: 'blur' }
+          { len: 6, message: '长度必须为6个字符', trigger: 'blur' }
+        ],
+        agree: [
+          { required: true, message: '请同意用户协议', trigger: 'change' },
+          { pattern: /true/, message: '请同意用户协议', trigger: 'change' }
         ]
       },
       captchaObj: null// 通过 initGeetest 得到的极验验证码对象
@@ -173,6 +182,9 @@ export default {
    }
    .el-button{
         width: 100%;
+      }
+      .el-checkbox{
+        margin-right:10px;
       }
   }
 </style>
