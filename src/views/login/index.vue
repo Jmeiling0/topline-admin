@@ -21,7 +21,8 @@
         <el-input v-model="form.code" placeholder="验证码"></el-input>
       </el-col>
        <el-col :span="10" :offset="2">
-        <el-button  @click="handleSendCode">获取验证码</el-button>
+          <!-- <el-button  @click="handleSendCode">获取验证码</el-button> -->
+        <el-button  @click="handleSendCode" :disabled="!!codeTimer">{{ codeTimer ? `剩余${codeSecons}秒` : '获取验证码' }}</el-button>
       </el-col>
     </el-form-item>
     <el-form-item>
@@ -39,7 +40,8 @@
 
 <script>
 import axios from 'axios'
-import '@/vendor/gt'
+import '@/vendor/gt' // gt.js会向全局window暴露一个函数initGeetest
+const initCodeSeconds = 15
 export default {
   name: 'AppLogin',
   data () {
@@ -65,7 +67,9 @@ export default {
           { pattern: /true/, message: '请同意用户协议', trigger: 'change' }
         ]
       },
-      captchaObj: null// 通过 initGeetest 得到的极验验证码对象
+      captchaObj: null, // 通过 initGeetest 得到的极验验证码对象
+      codeSecons: initCodeSeconds, // 倒计时的时间
+      codeTimer: null // 倒计时定时器
     }
   },
   methods: {
@@ -79,8 +83,8 @@ export default {
         this.submitlogin()
       })
     },
-
-    submitlogin () {
+    // 提交登录
+    submitLogin () {
       this.loginLoading = true
       axios({
         method: 'POST',
@@ -109,15 +113,17 @@ export default {
     },
 
     handleSendCode () {
+      // 校验手机号是否有效
       this.$refs['ruleForm'].validateField('mobile', errorMessage => {
         if (errorMessage.trim().length > 0) {
           return
         }
-        // 初始化验证码
+        // 手机号码有效,初始化验证码插件
         this.showGeetest()
       })
     },
     showGeetest () {
+      // 函数中的function函数中的this指向window
       const { mobile } = this.form
       // console.log(this.form)
       // console.log(this.form.mobile)
@@ -142,10 +148,10 @@ export default {
         }, (captchaObj) => {
           this.captchaObj = captchaObj
           // 这里可以调用验证实例 captchaObj 的实例方法
-          captchaObj.onReady(function () {
+          captchaObj.onReady(() => {
             // 只有ready才能显示验证码
             captchaObj.verify() // 显示验证码
-          }).onSuccess(function () {
+          }).onSuccess(() => {
             const {
               geetest_challenge: challenge,
               geetest_seccode: seccode,
@@ -160,11 +166,23 @@ export default {
                 validate
               }
             }).then(res => {
-              console.log(res.data)
+              // 发送短信之后,开始倒计时
+              this.codeCountDown()
             })
           })
         })
       })
+    },
+    /** 倒计时 */
+    codeCountDown () {
+      this.codeTimer = window.setInterval(() => {
+        this.codeSecons--
+        if (this.codeSecons <= 0) {
+          this.codeSecons = initCodeSeconds // 让定时器回到初始状态
+          window.clearInterval(this.codeTimer)// 清除倒计时
+          this.codeTimer = null // 清除倒计时定时器的标准
+        }
+      }, 1000)
     }
   }
 }
