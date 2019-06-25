@@ -109,6 +109,15 @@ export default {
     },
 
     handleSendCode () {
+      this.$refs['ruleForm'].validateField('mobile', errorMessage => {
+        if (errorMessage.trim().length > 0) {
+          return
+        }
+        // 初始化验证码
+        this.showGeetest()
+      })
+    },
+    showGeetest () {
       const { mobile } = this.form
       // console.log(this.form)
       // console.log(this.form.mobile)
