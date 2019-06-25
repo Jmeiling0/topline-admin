@@ -5,11 +5,18 @@
       <img src="./logo_index.png" alt="黑马头条">
     </div>
     <div class="login-form">
-  <el-form ref="form" :model="form">
-    <el-form-item>
+      <!--
+        表单验证:
+        rules 配置验证规则
+        将需要的字段通过 prop 属性配置到 el-from-item 组件上
+        ref 获取表单组件, 可以手动调用表单组件的验证方法
+
+       -->
+  <el-form :model="form" :rules="rules" ref="ruleForm">
+    <el-form-item  prop="mobile">
       <el-input v-model="form.mobile" placeholder="手机号"></el-input>
     </el-form-item>
-    <el-form-item>
+    <el-form-item  prop="code">
       <el-col :span="10">
         <el-input v-model="form.code" placeholder="验证码"></el-input>
       </el-col>
@@ -18,7 +25,7 @@
       </el-col>
     </el-form-item>
     <el-form-item>
-      <el-button class="btn-login" type="primary" @click="handleLogin">登录</el-button>
+      <el-button class="btn-login" type="primary" @click="handleLogin" :loading="loginLoading">登录</el-button>
     </el-form-item>
   </el-form>
     </div>
@@ -33,15 +40,39 @@ export default {
   name: 'AppLogin',
   data () {
     return {
-      form: {
+      form: { // 表单数据
         mobile: '15106849157',
         code: ''
+      },
+      loginLoading: false, // 登录按钮 loading 状态
+
+      rules: {// 表单验证规则
+        mobile: [
+          { required: true, message: '请输入手机号', trigger: 'blur' },
+          { len: 11, max: 11, message: '长度在11个字符', trigger: 'blur' }
+        ],
+        code: [
+          { required: true, message: '请输入验证码', trigger: 'blur' },
+          { len: 6, max: 6, message: '长度在6个字符', trigger: 'blur' }
+        ]
       },
       captchaObj: null// 通过 initGeetest 得到的极验验证码对象
     }
   },
   methods: {
     handleLogin () {
+      // 表单组件验证有一个方法 validate 可以用于获取当前表单的验证状态
+      this.$refs['ruleForm'].validate(valid => {
+        if (!valid) {
+          return
+        }
+        // 表单验证通过,提交登录
+        this.submitlogin()
+      })
+    },
+
+    submitlogin () {
+      this.loginLoading = true
       axios({
         method: 'POST',
         url: 'http://ttapi.research.itcast.cn/mp/v1_0/authorizations',
@@ -54,6 +85,7 @@ export default {
           type: 'success'
         })
 
+        this.loginLoading = false
         // 建议路由跳转都使用 name去跳转,路由传参非常方便
         this.$router.push({
           name: 'home'
@@ -63,6 +95,7 @@ export default {
           if (err.response.status === 400) {
             this.$message.error('登录失败,验证码或手机号错误')
           }
+          this.loginLoading = false
         })
     },
 
