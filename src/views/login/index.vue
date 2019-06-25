@@ -18,7 +18,7 @@
       </el-col>
     </el-form-item>
     <el-form-item>
-      <el-button class="btn-login" type="primary" @click="onSubmit">登录</el-button>
+      <el-button class="btn-login" type="primary" @click="handleLogin">登录</el-button>
     </el-form-item>
   </el-form>
     </div>
@@ -41,9 +41,31 @@ export default {
     }
   },
   methods: {
-    onSubmit () {
-      console.log('submint!')
+    handleLogin () {
+      axios({
+        method: 'POST',
+        url: 'http://ttapi.research.itcast.cn/mp/v1_0/authorizations',
+        data: this.form
+      }).then(res => { // axios >=200 && <400的状态码都会进入这里
+        // Elemnet 提供的message 消息提示组建
+        // 这也是组建调用的一种形式
+        this.$message({
+          message: '登陆成功',
+          type: 'success'
+        })
+
+        // 建议路由跳转都使用 name去跳转,路由传参非常方便
+        this.$router.push({
+          name: 'home'
+        })
+      })
+        .catch(err => { // >=400 的 http 状态码都会进入到 catch 中
+          if (err.response.status === 400) {
+            this.$message.error('登录失败,验证码或手机号错误')
+          }
+        })
     },
+
     handleSendCode () {
       const { mobile } = this.form
       // console.log(this.form)
@@ -52,6 +74,8 @@ export default {
       if (this.captchaObj) {
         return this.captchaObj.verify()
       }
+
+      // 调用 获取短信验证码 (极验 API2) 接口,发送短信
       axios({
         methods: 'GET',
         url: `http://ttapi.research.itcast.cn/mp/v1_0/captchas/${mobile}`
