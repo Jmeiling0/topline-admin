@@ -7,7 +7,10 @@
   <el-header>
     <AppHeader />
   </el-header>
-    <el-main>Main</el-main>
+    <el-main>
+      <!-- Layout组件路由出口 -->
+      <router-view/>
+    </el-main>
   </el-container>
 </el-container>
 </template>
