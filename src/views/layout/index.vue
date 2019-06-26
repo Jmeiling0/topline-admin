@@ -2,6 +2,7 @@
   <div>
    <AppAside/>
    <AppHeader/>
+   <!-- 这里是内容是 Home,发布文章,评论管理 -->
   </div>
 </template>
 
@@ -9,7 +10,7 @@
 import AppAside from './components/AppAside'
 import AppHeader from './components/AppHeder'
 export default {
-  name: 'AppHeader',
+  name: 'AppLayout',
   components: {
     AppAside,
     AppHeader
