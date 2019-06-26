@@ -18,7 +18,5 @@ export default new Router({
     name: 'layout',
     path: '/layout',
     component: () => import('@/views/layout')
-  }
-
-  ]
+  }]
 })

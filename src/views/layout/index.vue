@@ -4,20 +4,17 @@
       <AppAside/>
     </el-aside>
   <el-container>
-  <el-header>Header</el-header>
+  <el-header>
+    <AppHeader />
+  </el-header>
     <el-main>Main</el-main>
   </el-container>
 </el-container>
-
-  <!-- <div>
-   <AppAside/>
-   <AppHeader/>
-  </div> -->
 </template>
 
 <script>
 import AppAside from './components/AppAside'
-import AppHeader from './components/AppHeder'
+import AppHeader from './components/AppHeader'
 export default {
   name: 'AppLayout',
   components: {
