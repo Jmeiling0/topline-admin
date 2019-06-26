@@ -22,7 +22,7 @@
       </el-col>
        <el-col :span="10" :offset="2">
           <!-- <el-button  @click="handleSendCode">获取验证码</el-button> -->
-        <el-button  @click="handleSendCode" :disabled="!!codeTimer">{{ codeTimer ? `剩余${codeSecons}秒` : '获取验证码' }}</el-button>
+        <el-button  @click="handleSendCode" :disabled="!!codeTimer || codeLoading">{{ codeTimer ? `剩余${codeSecons}秒` : '获取验证码' }}</el-button>
       </el-col>
     </el-form-item>
     <el-form-item>
@@ -69,7 +69,9 @@ export default {
       },
       captchaObj: null, // 通过 initGeetest 得到的极验验证码对象
       codeSecons: initCodeSeconds, // 倒计时的时间
-      codeTimer: null // 倒计时定时器
+      codeTimer: null, // 倒计时定时器
+      sendMobile: '', // 保存初始化验证码之后发送短信的手机号
+      codeLoading: false
     }
   },
   methods: {
@@ -118,16 +120,39 @@ export default {
         if (errorMessage.trim().length > 0) {
           return
         }
+        // 手机号码验证通过
+
+        // 验证是否有验证码插件对象
+        if (this.captchaObj) {
         // 手机号码有效,初始化验证码插件
-        this.showGeetest()
+        // this.showGeetest()
+        // 如果用户输入的手机号和之前的验证码手机号不一致,就基于当前手机号重新初始化
+        // 否则,直接verify显示
+          if (this.form.mobile !== this.sendMobile) {
+          // 手机验证码发生改变,重新初始化验证码插件
+
+            // 重新初始化之前,将原来的验证码插件DOM删除
+            document.body.removeChild(document.querySelector('.geetest_panel'))
+            this.showGeetest()
+          } else {
+          // 一致,直接verify
+            this.captchaObj.verify()
+          }
+        } else {
+          // 这里是第1次的初始化验证码插件
+          this.showGeetest()
+        }
       })
     },
     showGeetest () {
       // 函数中的function函数中的this指向window
+
+      // 初始化验证码期间,禁用按钮的点击状态
+      this.codeLoading = true
       const { mobile } = this.form
       // console.log(this.form)
       // console.log(this.form.mobile)
-      // console.log({ mobile })
+      console.log({ mobile })
       if (this.captchaObj) {
         return this.captchaObj.verify()
       }
@@ -135,7 +160,7 @@ export default {
       // 调用 获取短信验证码 (极验 API2) 接口,发送短信
       axios({
         methods: 'GET',
-        url: `http://ttapi.research.itcast.cn/mp/v1_0/captchas/${mobile}`
+        url: `http://ttapi.research.itcast.cn/mp/v1_0/captchas/${this.form.mobile}`
       }).then(res => {
         const data = res.data.data
         window.initGeetest({
@@ -150,7 +175,10 @@ export default {
           // 这里可以调用验证实例 captchaObj 的实例方法
           captchaObj.onReady(() => {
             // 只有ready才能显示验证码
+            this.sendMobile = this.form.mobile
             captchaObj.verify() // 显示验证码
+            // 验证码初始化好了 ,让 "获取验证码可以点击"
+            this.codeLoading = false
           }).onSuccess(() => {
             const {
               geetest_challenge: challenge,
@@ -159,7 +187,7 @@ export default {
             captchaObj.getValidate()
             axios({
               method: 'GET',
-              url: `http://ttapi.research.itcast.cn/mp/v1_0/sms/codes/${mobile}`,
+              url: `http://ttapi.research.itcast.cn/mp/v1_0/sms/codes/${this.form.mobile}`,
               params: { // 专门用来查询query查询字符串参数
                 challenge,
                 seccode,
