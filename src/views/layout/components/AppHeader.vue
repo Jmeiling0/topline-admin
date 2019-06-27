@@ -4,8 +4,8 @@
     <el-col :span="10" :offset="16">
       <el-dropdown trigger="click">
         <span class="el-dropdown-link">
-           <img width="30" src="http://toutiao.meiduo.site/Fkj6tQi3xJwVXi1u2swCElotfdCi">
-            15106819157<i class="el-icon-arrow-down el-icon--right"></i>
+           <img width="25"  :src="userInfo.photo">
+            {{userInfo.name}}<i class="el-icon-arrow-down el-icon--right"></i>
         </span>
         <el-dropdown-menu slot="dropdown">
           <el-dropdown-item>账户设置</el-dropdown-item>
@@ -20,7 +20,13 @@
 export default {
   name: 'AppHeader',
   data () {
-    return {}
+    return {
+      userInfo: {}
+    }
+  },
+  created () {
+    this.userInfo = JSON.parse(window.localStorage.getItem('user_info'))
+    // 这里是获取localStorage的token信息 格式是js对象
   }
 }
 </script>
@@ -37,5 +43,6 @@ export default {
   }
   .el-icon-arrow-down {
     font-size: 12px;
+
   }
 </style>

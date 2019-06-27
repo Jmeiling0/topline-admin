@@ -48,7 +48,7 @@ export default {
     return {
       form: { // 表单数据
         mobile: '15106849157',
-        code: '',
+        code: '246810',
         agree: '' // 是否同意用户协议
       },
       loginLoading: false, // 登录按钮 loading 状态
@@ -82,7 +82,7 @@ export default {
           return
         }
         // 表单验证通过,提交登录
-        this.submitlogin()
+        this.submitLogin()
       })
     },
     // 提交登录
@@ -93,6 +93,8 @@ export default {
         url: 'http://ttapi.research.itcast.cn/mp/v1_0/authorizations',
         data: this.form
       }).then(res => { // axios >=200 && <400的状态码都会进入这里
+        // 登录成功,将接口返回的用户信息数据放到本地存储
+        window.localStorage.setItem('user_info', JSON.stringify(res.data.data))
         // Elemnet 提供的message 消息提示组建
         // 这也是组建调用的一种形式
         this.$message({
