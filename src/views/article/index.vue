@@ -1,18 +1,18 @@
 <template>
   <div>
-    <p>AppHeader Component</p>
+    <p>Article Component</p>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'AppHeader',
+  name: 'ArticleList',
   data () {
     return {}
   }
 }
 </script>
 
-<style lang="less" scoped>
+<style lang="less">
 
 </style>
