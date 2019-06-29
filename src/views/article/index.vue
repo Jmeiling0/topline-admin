@@ -29,10 +29,9 @@
     </el-date-picker>
   </el-form-item>
   <el-form-item>
-    <el-button type="primary" @click="onSubmit">立即创建</el-button>
-    <el-button>取消</el-button>
+    <el-button type="primary" @click="onSubmit">查询</el-button>
   </el-form-item>
-</el-form>
+ </el-form>
 </el-card>
 <!-- /筛选区 -->
 
@@ -78,6 +77,7 @@
 </template>
 
 <script>
+const userInfo = JSON.parse(window.localStorage.getItem('user_info'))
 export default {
   name: 'ArticleList',
   data () {
@@ -108,8 +108,24 @@ export default {
         type: [],
         resource: '',
         desc: '',
-        value: ''
+        value1: ''
       }
+    }
+  },
+  created () {
+    this.$http({
+      method: 'GET',
+      url: '/articles',
+      headers: {// 自定义发送请求头
+        Authorization: `Bearer ${userInfo.token}` // 注意:Bearer和token之间要有空格
+      }
+    }).then(res => {
+      console.log(res)
+    })
+  },
+  methods: {
+    onSubmit () {
+      console.log(userInfo.token)
     }
   }
 }
