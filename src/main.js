@@ -16,6 +16,40 @@ import router from './router'
  */
 axios.defaults.baseURL = 'http://ttapi.research.itcast.cn/mp/v1_0/'
 
+/**
+ * axios请求拦截器
+ * 所以使用axios发起的请求都要先经过这里
+ * config 是本次请求相关的  配置对象
+ * return config 就是允许通过的方式
+ *
+ */
+
+// Add a request interceptor
+axios.interceptors.request.use(config => {
+  const userInfo = JSON.parse(window.localStorage.getItem('user_info'))
+  console.log('请求经过这里')
+  console.log(config)
+  config.headers.Authorization = `Bearer ${userInfo.token}`
+  // Do something before request is sent
+  // return config允许通过的方式
+  return config
+}, function (error) {
+  // Do something with request error
+  return Promise.reject(error)
+})
+
+/**
+ * axios 响应拦截器
+ */
+// Add a response interceptor
+axios.interceptors.response.use(response => {
+  // Do something with response data
+  return response
+}, error => {
+  // Do something with response error
+  return Promise.reject(error)
+})
+
 Vue.use(ElementUI)
 Vue.config.productionTip = false
 
