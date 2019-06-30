@@ -92,9 +92,10 @@ export default {
         method: 'POST',
         url: '/authorizations',
         data: this.form
-      }).then(res => { // axios >=200 && <400的状态码都会进入这里
+      }).then(data => { // axios >=200 && <400的状态码都会进入这里
         // 登录成功,将接口返回的用户信息数据放到本地存储
-        window.localStorage.setItem('user_info', JSON.stringify(res.data.data))
+        // window.localStorage.setItem('user_info', JSON.stringify(res.data.data))
+        window.localStorage.setItem('user_info', JSON.stringify(data))
         // Elemnet 提供的message 消息提示组建
         // 这也是组建调用的一种形式
         this.$message({
@@ -163,8 +164,8 @@ export default {
       this.$http({
         methods: 'GET',
         url: `/captchas/${this.form.mobile}`
-      }).then(res => {
-        const data = res.data.data
+      }).then(data => {
+        // const data = res.data.data
         window.initGeetest({
           // 以下配置多数来自服务器 SDK
           gt: data.gt,
@@ -195,7 +196,7 @@ export default {
                 seccode,
                 validate
               }
-            }).then(res => {
+            }).then(data => {
               // 发送短信之后,开始倒计时
               this.codeCountDown()
             })

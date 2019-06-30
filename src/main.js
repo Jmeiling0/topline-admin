@@ -27,26 +27,38 @@ axios.defaults.baseURL = 'http://ttapi.research.itcast.cn/mp/v1_0/'
 // Add a request interceptor
 axios.interceptors.request.use(config => {
   const userInfo = JSON.parse(window.localStorage.getItem('user_info'))
-  console.log('请求经过这里')
-  console.log(config)
-  config.headers.Authorization = `Bearer ${userInfo.token}`
+  // 如果登录了,才给那些需要的token 的接口统一添加token令牌
+  // 登录相关接口不需要添加 token令牌 想要也没有
+  if (userInfo) {
+    config.headers.Authorization = `Bearer ${userInfo.token}`
+  }
   // Do something before request is sent
   // return config允许通过的方式
   return config
-}, function (error) {
+}, error => {
   // Do something with request error
   return Promise.reject(error)
 })
 
 /**
  * axios 响应拦截器
+ * 统一处理响应的数据格式
  */
 // Add a response interceptor
-axios.interceptors.response.use(response => {
-  // Do something with response data
-  return response
-}, error => {
-  // Do something with response error
+axios.interceptors.response.use(response => { // >=200 && <400的状态码进入这里
+  console.log('response => ', response)
+  return response.data.data
+}, error => { // >=400 的状态码会进入这里
+  console.dir(error)
+  const status = error.response.status
+
+  if (status === 401) {
+    // 务必删除本地存储中的用户信息数据
+    window.localStorage.removeItem('user_info')
+    router.push({
+      name: 'login'
+    })
+  }
   return Promise.reject(error)
 })
 
