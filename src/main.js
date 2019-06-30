@@ -49,7 +49,7 @@ axios.interceptors.response.use(response => { // >=200 && <400的状态码进入
   console.log('response => ', response)
   return response.data.data
 }, error => { // >=400 的状态码会进入这里
-  console.dir(error)
+  // console.dir(error)
   const status = error.response.status
 
   if (status === 401) {
