@@ -110,6 +110,7 @@ export default {
         })
       })
         .catch(err => { // >=400 的 http 状态码都会进入到 catch 中
+        // console.log(err)
           if (err.response.status === 400) {
             this.$message.error('登录失败,验证码或手机号错误')
           }
